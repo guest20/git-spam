@@ -7,14 +7,15 @@ use Object::Tiny::RW qw[
 
 ];
 
-# gives you back a hash-based object, representing a commit (that hasn't happened yet)
-# $author->generate_commit( $repo );
-#
 sub style {
     $_[0]->community->commit_styles(
         $_[0]->{style}
     )
 }
+
+# gives you back a hash-based object, representing a commit (that hasn't happened yet)
+# $author->generate_commit( $repo );
+#
 sub generate_commit {
     my ($self, $repo) = @_;
 
