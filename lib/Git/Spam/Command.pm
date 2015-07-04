@@ -18,8 +18,6 @@ sub run {
     $self->community(
         Git::Spam::Community->new
     );
-    $self->community->_init;
-    
     # for (1..$self->num_commits) {
         my $author = $self->select_author;
         my $author_style = $author->style;

@@ -22,9 +22,6 @@ sub generate_commit {
     my $style    = $self->style;
     my $language = $self->community->languages->{ $author->{language} };
 
-    use Data::Dumper;
-    print Dumper [$author, $language ];
-
     my $commit = {
         subject => [],
         body => [],
