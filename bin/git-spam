@@ -13,11 +13,27 @@ use lib "$FindBin::Bin/../lib";
 my $init_repo           = 0; # should we create a repo if it doesn't exist 
                              # mostly only useful for testing new vesions of the script with repos in /tmp
 
-my $repo_path           =
-    $init_repo
-        ? ( sprintf "/tmp/commit-spam-repo-%s",$$ )
-        : ( sort glob "/tmp/commit-spam-repo-*/"   )[-1]   # the last one, whatever.
-        ;
+my $repo_path;
+
+
+# if you don't specify one
+if (not $repo_path) {
+        $repo_path = ( sort glob "/tmp/commit-spam-repo-*/"   )[-1];  # the last one, whatever.
+
+        # ... and we didn't find a one
+        if (not $repo_path) { 
+            # ... create a new repo
+            $repo_path = sprintf "/tmp/commit-spam-repo-%s",$$;
+            $init_repo = 1;
+        }
+}
+
+if ($init_repo and -d $repo_path) {
+    die "can't init a repo in a path that exists"
+}
+if (not $init_repo and not -d $repo_path) {
+    die "can't use a repo that doesn't exist"
+}
 
 
 use Git::Spam::Command;
@@ -36,6 +52,5 @@ $program->repo(
     )
 );
 
-print Dumper ($program->repo);
 exit run $program;
 
