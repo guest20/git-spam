@@ -9,6 +9,8 @@ use lib             '../perl5/lib/perl5'; #  ... then in this repo
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
+use Log::Any qw($log);
+
 # use Getopt::Long ... parse options, and set / validate them
 # use Pod::Usage;  pod2usage(0) if $opt{help} or not $options_valid
 
