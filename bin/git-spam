@@ -9,6 +9,9 @@ use lib             '../perl5/lib/perl5'; #  ... then in this repo
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
+# use Getopt::Long ... parse options, and set / validate them
+# use Pod::Usage;  pod2usage(0) if $opt{help} or not $options_valid
+
 # the repo
 my $init_repo           = 0; # should we create a repo if it doesn't exist 
                              # mostly only useful for testing new vesions of the script with repos in /tmp
@@ -54,3 +57,33 @@ $program->repo(
 
 exit run $program;
 
+__END__
+
+=head1 NAME
+
+git-spam - generate commits on a git repo 
+
+=head1 SYNOPSIS
+
+    perl ...
+
+=head1 ARGUMENTS
+
+=head2 none
+
+There are currently no arguments.
+
+=head1 OPTIONS
+
+=head2 none
+
+You currently have no control over how this software behaves.
+
+=head2 help|h
+
+Display help and usage
+
+=head1 LICENSE AND COPYRIGHT
+
+This software is not for public consumption, and is not distributed *at all*.
+Please inform the author if you happen upon this software in the wild.
