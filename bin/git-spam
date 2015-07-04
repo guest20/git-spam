@@ -1,7 +1,7 @@
 #! /usr/bin/perl
 
-use warnings;
-use strict;
+use warnings; use strict;
+use Data::Dumper;
 
 use lib $ENV{HOME} . '/perl5/lib/perl5'; #  look for a local::lib in ~
 use lib             '../perl5/lib/perl5'; #  ... then in this repo
@@ -16,23 +16,26 @@ my $init_repo           = 0; # should we create a repo if it doesn't exist
 my $repo_path           =
     $init_repo
         ? ( sprintf "/tmp/commit-spam-repo-%s",$$ )
-        : ( sort glob "/tmp/commit-spam-repo-*"   )[-1]   # the last one, whatever.
+        : ( sort glob "/tmp/commit-spam-repo-*/"   )[-1]   # the last one, whatever.
         ;
 
-# if ( ! -d "$repo_path/.git" ) { 
-#     print "$_ -> ",`$_ `, $?, "\n" for 
-#         "mkdir -p $repo_path",
-#         "ls $repo_path",
-#         "cd $repo_path && git init" 
-#     ;
-# }
 
 use Git::Spam::Command;
 my $program = Git::Spam::Command->new();
-# $program->options( $value);
+# $program->options( $value );
+
+# set up the git repo:
+
+use Git::Repository;
+Git::Repository->run( init => $repo_path, )
+    if $init_repo;
+
+$program->repo(
+    Git::Repository->new(
+        work_tree => $repo_path
+    )
+);
+
+print Dumper ($program->repo);
 exit run $program;
-
-
-
-print "Using $repo_path";
 
