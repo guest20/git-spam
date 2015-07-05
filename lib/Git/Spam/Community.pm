@@ -151,25 +151,32 @@ authors:
                 para_size_fuzz: 0
             length: 4lines
         language: en_AU
-        additions:
-            new_file: 0.25
-            new_file_name_words: 3
-            new_file_name_words_fuzz: 2
-            new_file_name_depth: 4
-            new_file_name_depth_fuzz: 2
-            
-        refactoring: no
         weight: 5
 
-    verbose:
+    Spammy McJerkerson:
+        email: spammy@gmail.example.com
         style: chris_beams
+        language: en_AU
         weight: 5
+        commits_per_push:
+            - 1
+            - 5
+        content: 
+            subject:
+                words: 20
+                word_fuzz: 0
+                
+            body:
+                paras: 6
+                para_fuzz: 0
+                para_size: 50
+                para_size_fuzz: 0
 
     sysadmin0:
         style: oneline
         paragraphs: [1]
         words: [1,10]
-        weight: 1
+        weight: 0
 
 project_type:
     cpan_dist:

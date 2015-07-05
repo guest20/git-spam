@@ -15,6 +15,8 @@ use Object::Tiny::RW
     community               => # Git::Spam::Community 
 
     repo                    => # Git::Repository object
+
+    _odds_for_authors        => # [ array of authors names over and over again ]
 ;
 
 
@@ -44,7 +46,8 @@ sub run {
         }
 
         if ( $self->should_push ) {
-            
+            $self->repo->run('push');
+            #TODO: error checking, rebase etc
         }
     }
     
@@ -52,6 +55,19 @@ sub run {
 }
 
 sub select_author {
-    $_[0]->community->authors('Anna Nemous')
+    my $self = shift;
+    
+    my @odds = @{ $self->_odds_for_authors || [] };
+    unless (@odds) {
+        my $authors = $self->community->authors;
+        for my $author (keys %$authors) {
+            push @odds, ($author) x $authors->{$author}{weight}
+        }
+        $self->_odds_for_authors( \@odds );
+    }
+    
+    return $self->community->authors(
+        $odds[ rand @odds ]
+    );
 }
 1
