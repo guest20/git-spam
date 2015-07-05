@@ -47,12 +47,13 @@ sub mangle { # git operations happen here, lol
 
             my $file = $repo->{work_tree} . '/' . $repo_file;
 
-            my $odds = exists $modify_exts{ $ext } ? $modify_exts{ $ext } : [1,undef];
-            $log->tracef( 'consider %s ext=%s %s', $file, $ext, $odds);
+            my $odds = (defined $ext and exists $modify_exts{ $ext }) ? $modify_exts{ $ext } : [1,undef];
+
+            #$log->tracef( 'consider %s ext=%s %s', $file, $ext, $odds);
 
             if ( $odds and $odds->[0] < rand) {
                 # roll dice on changing the files
-                $log->tracef( '... modifying ');
+                #$log->tracef( '... modifying ');
 
                 $files->{$repo_file} = "patched";
 
@@ -107,9 +108,9 @@ sub mangle { # git operations happen here, lol
          keys %$files
     );
 
-    $log->infof('comitted %s: %s', 
-        $text =~ /^(.*)$/ ? $1 : '',
+    $log->infof('   comitted %s: %s', 
         0+keys %$files,
+        (split /\n/,$text,2)[0],
     )
 
     # the commits will be pushed (if they are pushed) by the loop in ::Command

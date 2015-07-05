@@ -137,7 +137,7 @@ authors:
         email: "Anna.Nemous@example.com"
         style: chris_beams
         commits_per_push:
-            - 2
+            - 1
             - 5
         content: 
             subject:

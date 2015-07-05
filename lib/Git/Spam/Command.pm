@@ -37,7 +37,7 @@ sub run {
         $log->infof("Switching to '%s' for %s commits", $author->name, $author->commits_per_push);
 
         for (1..$num_commits) {
-            $log->infof('%s of %s', $_, $num_commits);
+            #$log->infof('%s of %s', $_, $num_commits);
 
             my $commit = $author->generate_commit;
             $commit->mangle( $self->repo, $author_style );
