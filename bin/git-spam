@@ -21,19 +21,39 @@ Log::Any::Adapter->set('Stderr');
 my $init_repo           = 0; # should we create a repo if it doesn't exist 
                              # mostly only useful for testing new vesions of the script with repos in /tmp
 
-my $repo_path;
+my $repo_path; 
+my $use_cwd             = 0; # when true, and git-spam is in a git repo, commit there
+                             # when false, confirm that the user means cwd first.
 
+my $on_test_repo        =0;  # when true, use a repo in /tmp for nonsense commits
+                             # (overridden by use_cwd)
 
-# if you don't specify one
-if (not $repo_path) {
-        $repo_path = ( sort glob "/tmp/commit-spam-repo-*/"   )[-1];  # the last one, whatever.
+if ($on_test_repo) {
+    my $scratch_repo = "/tmp/git-spam-repo-";
+    $repo_path = ( sort glob "$scratch_repo*" )[-1];  # the last one, whatever.
 
-        # ... and we didn't find a one
-        if (not $repo_path) { 
-            # ... create a new repo
-            $repo_path = sprintf "/tmp/commit-spam-repo-%s",$$;
-            $init_repo = 1;
+    # ... and we didn't find a one
+    if (not $repo_path) { 
+        # ... create a new repo
+        $repo_path = sprintf "/tmp/%s%s",$scratch_repo,$$;
+        $init_repo = 1;
+    }
+}
+
+# Guess where they want the commits,
+if (not $repo_path or $use_cwd) {
+    # Am I in a git repo?
+    chomp( $repo_path = ` git rev-parse --show-toplevel ` );
+
+    if (not $use_cwd) { 
+        if ($repo_path) {
+            print "Going to start doing bogus commits in $repo_path\nStrike enter to continue. ";
+            <>
         }
+        else {
+            die "No repo_path provided, I don't have any place to generate spam commits";
+        }
+    }
 }
 
 if ($init_repo and -d $repo_path) {
