@@ -133,7 +133,8 @@ styles:
             body:
                 wrap: no
 authors:
-    me:
+    Anna Nemous:
+        email: "Anna.Nemous@example.com"
         style: chris_beams
         content: 
             subject:
@@ -147,6 +148,12 @@ authors:
                 para_size_fuzz: 0
             length: 4lines
         language: en_AU
+        additions:
+            new_file: 0.25
+            new_file_name_words: 3
+            new_file_name_words_fuzz: 2
+            new_file_name_depth: 4
+            new_file_name_depth_fuzz: 2
             
         refactoring: no
         weight: 5
@@ -160,6 +167,11 @@ authors:
         paragraphs: [1]
         words: [1,10]
         weight: 1
+
+project_type:
+    cpan_dist:
+        classify:
+  
 
 language:
     en_AU:

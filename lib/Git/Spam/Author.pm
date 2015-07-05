@@ -4,6 +4,7 @@ use warnings; use strict;
 use Object::Tiny::RW qw[ 
     community
     name
+    email
 
 ];
 

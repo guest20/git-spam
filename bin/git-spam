@@ -11,6 +11,9 @@ use lib "$FindBin::Bin/../lib";
 
 use Log::Any qw($log);
 
+use Log::Any::Adapter;
+Log::Any::Adapter->set('Stderr');
+
 # use Getopt::Long ... parse options, and set / validate them
 # use Pod::Usage;  pod2usage(0) if $opt{help} or not $options_valid
 
@@ -40,6 +43,11 @@ if (not $init_repo and not -d $repo_path) {
     die "can't use a repo that doesn't exist"
 }
 
+$log->tracef(
+    "GIT using '%s' and init_repo=%s",
+    $repo_path,
+    $init_repo,
+);
 
 use Git::Spam::Command;
 my $program = Git::Spam::Command->new();

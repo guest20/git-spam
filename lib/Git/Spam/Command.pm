@@ -4,6 +4,9 @@ package Git::Spam::Command;
 #
 
 use warnings; use strict;
+
+use Log::Any qw($log);
+
 use Object::Tiny::RW 
     should_push             => #
     should_push_each_commit => # 
@@ -15,13 +18,13 @@ use Object::Tiny::RW
     repo                    => # Git::Repository object
 ;
 
+
 sub run {
     my $self = shift;
+    $log->debug('starting');
 
     use Git::Spam::Community;
-    $self->community(
-        Git::Spam::Community->new
-    );
+    $self->community( Git::Spam::Community->new);
 
     $self->num_authors(1) if not $self->num_authors;
 
@@ -31,15 +34,17 @@ sub run {
         # for 1..$self->num_commits_per
 
         my $commit = $author->generate_commit;
-        my $ci     = $author_style->format_message( $commit );
+        #my $ci     = $author_style->format_message( $commit );
 
-        $commit->mangle( $self->repo );
+        $commit->mangle( $self->repo, $author_style );
 
-        print $ci;
+        #print $ci;
         #}
     }
 0
 }
 
-sub select_author { $_[0]->community->authors('me') }
+sub select_author {
+    $_[0]->community->authors('Anna Nemous')
+}
 1

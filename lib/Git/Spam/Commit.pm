@@ -8,35 +8,83 @@ use warnings; use strict;
 
 # ::Commit objects are created by ::Author
 
-sub mangle {
-    my ($self, $repo) = @_;
+sub mangle { # git operations happen here, lol
+    my ($self, $repo, $style) = @_;
 
-    # the commit message is formatted outside of here, but we want to make
-    # some changes to the working copy on disk, so that we have something to
-    # commit
+    my $author= $self->author;
 
-
-    my @files   = eval { $repo->run('ls-files') };
-    my @history = eval { $repo->run('log', '--oneline') };
+    my @files   = eval { $repo->run('ls-files') } || ();
+    my @history = eval { $repo->run('log', '--oneline') } || ();
 
     if (not @files and not @history) { 
-        # this has to be the helo world commit.
-        $self->{subject} = "Hello world";
-        $self->{body}    = [];
-
-        use Data::Dumper;
-        print Dumper[
-        $self->default_repo_content 
-        ];
         #maybe just run $(dzil mint) here ?
+
+        # this has to be the helo world commit.
+        $self->{subject} = ["Hello","world"]; # [words]
+        $self->{body}    = [[]];                # [ [words] ]
+
+        my $files = $self->default_repo_content;
+
+        $self->write_things(
+            $repo->{work_tree} => $files
+        );
+
+        # keys of the hash should be fine to git add...
+        my $text = $style->format_message( $self );
+
+        @ENV{ qw[ 
+            GIT_AUTHOR_NAME
+            GIT_COMMITTER_NAME
+
+            GIT_COMMITTER_EMAIL
+            GIT_AUTHOR_EMAIL 
+        ] } = (
+            $author->name,
+            $author->name,
+            $author->email,
+            $author->email,
+        );
+
+        $repo->run( add => keys %$files );
+        $repo->run( commit => 
+            "-m$text",
+            '--',
+             keys %$files
+        );
         
     }
     else { 
         my $new_odds = $self->author->style->{additions}{new_file};
-    }
     use Data::Dumper;
     print Dumper (\@files);
+    }
     
+}
+
+sub write_things {
+    my ($self, $dest,$things)  = @_;
+
+    $log->debugf("Writing things to %s", $dest);
+    
+
+    for my $dir ( keys  %$things ) {
+        $log->debugf('... %s is a %s', $dir, ref $things->{ $dir } );
+        if ('HASH' eq ref $things->{ $dir } ) { 
+            # hash makes it a directory
+            mkdir "$dest/$dir"
+                or  $log->warnf("Can't mkdir %s: %s", "$dest/$dir", $!);
+            $self->write_things( "$dest/$dir", $things->{ $dir } );
+        }
+        elsif('SCALAR' eq ref $things->{ $dir } ){
+            # scalar ref makes it a file
+            open my $file, '>', "$dest/$dir"
+                or die $log->critf("Can't open %s for writing: %s", "$dest/$dir", $!);
+            print { $file } ${ $things->{ $dir } }
+                or die  $log->critf("write to %s: %s", "$dest/$dir", $!);
+    
+        }
+    }
+
 }
 
 
@@ -59,7 +107,7 @@ sub default_repo_content {
         map { 
             ['Acme', $top, delete $meta[ rand @meta ] ]
         }
-        0..rand @meta
+        1..rand @meta
     );
 
     my $files =  {
@@ -71,7 +119,7 @@ sub default_repo_content {
             'report-bug' => \qq{:\necho "that's a feature"}
         },
         t => {
-            '000-compiles.t' => 'use Test::More; fail("This software is nonsense");done_testing;'
+            '000-compiles.t' => \'use Test::More; fail("This software is nonsense");done_testing;'
         },
     };
 
