@@ -15,7 +15,9 @@ sub format_message {
     $string =  '';
 
     $string .= ($string eq ''  ? '' : " ") . shift @{ $commit->{subject} }
-                while length( $string ) < $style->{Flags}{subject}{max};
+                while @{ $commit->{subject} }                               # while there are more characters
+                    and length( $string ) < $style->{Flags}{subject}{max}   # ... and we don't have enough
+            ;
 
     # continue a long subject
     $string .= "\n..." . join ' ', @{ $commit->{subject} } if @{ $commit->{subject} };
