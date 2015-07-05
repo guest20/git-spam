@@ -129,9 +129,11 @@ styles:
         Cite: jerks
         Flags:
             subject: 
-                when: never
+                max: 1000
             body:
-                wrap: no
+                wrap: 1000
+            paragraphs: blank
+            tone: imperative
 authors:
     Anna Nemous:
         email: "Anna.Nemous@example.com"
@@ -173,10 +175,19 @@ authors:
                 para_size_fuzz: 0
 
     sysadmin0:
+        email: sysadmin0@dlmxadmin.local
+        language: foo 
         style: oneline
+        commits_per_push:
+            - 1
+            - 1
         paragraphs: [1]
-        words: [1,10]
-        weight: 0
+        content: 
+            subject:
+                words: 5
+            body:
+                paras: 0
+        weight: 2
 
 project_type:
     cpan_dist:
@@ -184,6 +195,22 @@ project_type:
   
 
 language:
+    foo:
+       - foo
+       - bar
+       - baz
+       - foobar
+       - fubar
+       - qux
+       - quux
+       - corge
+       - grault
+       - garply
+       - waldo
+       - fred
+       - plugh
+       - xyzzy
+       - thud
     en_AU:
       - "On-ya mate"
       - "Barbie?"

@@ -29,7 +29,11 @@ sub run {
 
     $self->num_authors(100) if not $self->num_authors;
 
+    # change authors back and forth
     for (1..$self->num_authors) {
+
+        #TODO: create branches, move to the next author, and then merge the branch
+
         my $author = $self->select_author;
 
         my $author_style = $author->style;
@@ -38,9 +42,8 @@ sub run {
 
         $log->infof("Switching to '%s' for %s commits", $author->name, $author->commits_per_push);
 
+        # mangle the repo, and commit the changes.
         for (1..$num_commits) {
-            #$log->infof('%s of %s', $_, $num_commits);
-
             my $commit = $author->generate_commit;
             $commit->mangle( $self->repo, $author_style );
         }
@@ -51,7 +54,7 @@ sub run {
         }
     }
     
-0
+    return my $exit = 0
 }
 
 sub select_author {
