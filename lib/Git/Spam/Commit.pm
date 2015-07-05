@@ -292,9 +292,13 @@ sub generated_gibberish {
     my @STACK;
     my @lines;
     my $line = '';
+    my $line_length = int(70 + rand 20);
 
-    while ($moar) { 
-        my $thing = $perl[ rand @perl ];
+    while ($moar) {
+        my $thing = ( length($line) > $line_length)
+                        ? 'NEWLINE'
+                        : $perl[ rand @perl ]
+                        ;
 
         $opens++  if exists $is_open{ $thing };
 
