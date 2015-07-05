@@ -136,6 +136,9 @@ authors:
     Anna Nemous:
         email: "Anna.Nemous@example.com"
         style: chris_beams
+        commits_per_push:
+            - 2
+            - 5
         content: 
             subject:
                 words: 20

@@ -9,7 +9,6 @@ use Log::Any qw($log);
 
 use Object::Tiny::RW 
     should_push             => #
-    should_push_each_commit => # 
 
     num_authors             => # generate commits from this many authors
 
@@ -26,21 +25,29 @@ sub run {
     use Git::Spam::Community;
     $self->community( Git::Spam::Community->new);
 
-    $self->num_authors(1) if not $self->num_authors;
+    $self->num_authors(100) if not $self->num_authors;
 
     for (1..$self->num_authors) {
         my $author = $self->select_author;
+
         my $author_style = $author->style;
-        # for 1..$self->num_commits_per
+        my ($min,$max) = @{ $author->commits_per_push || [] };
+        my $num_commits = $min + int rand ($max-$min);
 
-        my $commit = $author->generate_commit;
-        #my $ci     = $author_style->format_message( $commit );
+        $log->infof("Switching to '%s' for %s commits", $author->name, $author->commits_per_push);
 
-        $commit->mangle( $self->repo, $author_style );
+        for (1..$num_commits) {
+            $log->infof('%s of %s', $_, $num_commits);
 
-        #print $ci;
-        #}
+            my $commit = $author->generate_commit;
+            $commit->mangle( $self->repo, $author_style );
+        }
+
+        if ( $self->should_push ) {
+            
+        }
     }
+    
 0
 }
 

@@ -5,6 +5,7 @@ use Object::Tiny::RW qw[
     community
     name
     email
+    commits_per_push
 
 ];
 

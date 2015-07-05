@@ -24,7 +24,7 @@ sub mangle { # git operations happen here, lol
         $self->{subject} = ["Hello","world"]; # [words]
         $self->{body}    = [[]];                # [ [words] ]
 
-        my $files = $self->default_repo_content;
+        $files = $self->default_repo_content;
 
         $self->write_things(
             $repo->{work_tree} => $files
@@ -33,17 +33,15 @@ sub mangle { # git operations happen here, lol
         
     }
     else { 
-        my $new_odds = $self->author->style->{additions}{new_file};
-
-        use Data::Dumper;
-        print Dumper (\@files);
+        #my $new_odds = $self->author->style->{additions}{new_file};
 
         my %modify_exts # should come from author...
             #      odds of modify, odds to insert stuff, odds to remove
-            = ( pl => [1/@files,     0.2      ,         0.01  ,            'perl'], 
-                pm => [1/@files,     0.2      ,         0.01  ,            'perl'],
+            = ( pl => [1/@files,     0.002      ,         0.01  ,            'perl'], 
+                pm => [1/@files,     0.002      ,         0.01  ,            'perl'],
              );
 
+        # randomly mangle files in the repo
         for my $repo_file (@files) { 
             my ($ext) = $repo_file =~ /[.](\w+)$/;
 
@@ -76,7 +74,7 @@ sub mangle { # git operations happen here, lol
 
                     # odds to skip a line
                     print { $out } $_
-                        if $odds->[2] < rand;
+                        if ($odds->[2] < rand) .. 0.75 > rand ;
             
                 }
             }
@@ -84,8 +82,10 @@ sub mangle { # git operations happen here, lol
             
     }
 
+    # format up a commit message
     my $text = $style->format_message( $self );
 
+    # pretend to be the guy and commit it
     local @ENV{ qw[ 
         GIT_AUTHOR_NAME
         GIT_COMMITTER_NAME
@@ -106,6 +106,13 @@ sub mangle { # git operations happen here, lol
         '--',
          keys %$files
     );
+
+    $log->infof('comitted %s: %s', 
+        $text =~ /^(.*)$/ ? $1 : '',
+        0+keys %$files,
+    )
+
+    # the commits will be pushed (if they are pushed) by the loop in ::Command
     
 }
 
@@ -301,7 +308,7 @@ sub generated_gibberish {
         }
 
         if ($thing eq 'NEWLINE' or $thing eq 'BLANKLINE') { 
-            print  + ('    ' x @STACK ).  $line . "\n";
+            # print  + ('    ' x @STACK ).  $line . "\n";
 
             push @lines, ('    ' x @STACK ).  $line;
 
