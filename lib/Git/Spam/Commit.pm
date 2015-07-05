@@ -13,9 +13,10 @@ sub mangle { # git operations happen here, lol
 
     my $author= $self->author;
 
-    my @files   = eval { $repo->run('ls-files') } || ();
+    my @files   = split /\n/,eval { $repo->run('ls-files') } || ();
     my @history = eval { $repo->run('log', '--oneline') } || ();
 
+    my ($files); # keys are git-added, and comitted with $text
     if (not @files and not @history) { 
         #maybe just run $(dzil mint) here ?
 
@@ -29,35 +30,82 @@ sub mangle { # git operations happen here, lol
             $repo->{work_tree} => $files
         );
 
-        # keys of the hash should be fine to git add...
-        my $text = $style->format_message( $self );
-
-        @ENV{ qw[ 
-            GIT_AUTHOR_NAME
-            GIT_COMMITTER_NAME
-
-            GIT_COMMITTER_EMAIL
-            GIT_AUTHOR_EMAIL 
-        ] } = (
-            $author->name,
-            $author->name,
-            $author->email,
-            $author->email,
-        );
-
-        $repo->run( add => keys %$files );
-        $repo->run( commit => 
-            "-m$text",
-            '--',
-             keys %$files
-        );
         
     }
     else { 
         my $new_odds = $self->author->style->{additions}{new_file};
-    use Data::Dumper;
-    print Dumper (\@files);
+
+        use Data::Dumper;
+        print Dumper (\@files);
+
+        my %modify_exts # should come from author...
+            #      odds of modify, odds to insert stuff, odds to remove
+            = ( pl => [1/@files,     0.2      ,         0.01  ,            'perl'], 
+                pm => [1/@files,     0.2      ,         0.01  ,            'perl'],
+             );
+
+        for my $repo_file (@files) { 
+            my ($ext) = $repo_file =~ /[.](\w+)$/;
+
+            my $file = $repo->{work_tree} . '/' . $repo_file;
+
+            my $odds = exists $modify_exts{ $ext } ? $modify_exts{ $ext } : [1,undef];
+            $log->tracef( 'consider %s ext=%s %s', $file, $ext, $odds);
+
+            if ( $odds and $odds->[0] < rand) {
+                # roll dice on changing the files
+                $log->tracef( '... modifying ');
+
+                $files->{$repo_file} = "patched";
+
+                open my $in, '<', $file or do {
+                    $log->critf("Couldn't open %s, %s - it will be spared.", $file, $!);
+                    next;
+                };
+                unlink $file; 
+                open my $out, '>', $file or do {
+                    $log->critf("Couldn't open %s, %s - I just destroyed its contents, oops.", $file, $!);
+                    next;
+                };
+                my $options = { ENOUGH_OPENS => 1 };
+                while (defined( $_ = <$in>) ) {
+                    
+                    # odds to insert stuff
+                    print { $out } $self->generated_gibberish( $odds->[-1], $options )
+                        if $odds->[1] > rand;  
+
+                    # odds to skip a line
+                    print { $out } $_
+                        if $odds->[2] < rand;
+            
+                }
+            }
+        }
+            
     }
+
+    my $text = $style->format_message( $self );
+
+    local @ENV{ qw[ 
+        GIT_AUTHOR_NAME
+        GIT_COMMITTER_NAME
+
+        GIT_COMMITTER_EMAIL
+        GIT_AUTHOR_EMAIL 
+    ] } = (
+        $author->name,
+        $author->name,
+        $author->email,
+        $author->email,
+    );
+
+    # keys of the hash should be fine to git add...
+    $repo->run( add => keys %$files );
+    $repo->run( commit => 
+        "-m$text",
+        '--',
+         keys %$files
+    );
     
 }
 
@@ -232,7 +280,7 @@ sub generated_gibberish {
 
 
     my $moar =1;
-    my $opens=0;   my $ENOUGH_OPENS = 6;
+    my $opens=0;   my $ENOUGH_OPENS = $options->{ENOUGH_OPENS} || 6;
     my @STACK;
     my @lines;
     my $line = '';
