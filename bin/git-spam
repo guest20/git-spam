@@ -14,10 +14,9 @@ use Log::Any qw($log);
 use Log::Any::Adapter;
 Log::Any::Adapter->set('Stderr');
 
-# use Getopt::Long ... parse options, and set / validate them
-# use Pod::Usage;  pod2usage(0) if $opt{help} or not $options_valid
 
-# the repo
+
+
 my $init_repo           = 0; # should we create a repo if it doesn't exist 
                              # mostly only useful for testing new vesions of the script with repos in /tmp
 
@@ -28,6 +27,37 @@ my $use_cwd             = 0; # when true, and git-spam is in a git repo, commit 
 my $on_test_repo        =0;  # when true, use a repo in /tmp for nonsense commits
                              # (overridden by use_cwd)
 
+use Getopt::Long;
+use Pod::Usage; 
+
+my $data   = "file.dat";
+my $length = 24;
+my $verbose;
+
+GetOptions(
+    'help|?'    => \my $help,
+    man         => \my $man,
+                
+#   "length=i"  => \$length,    # numeric
+#   "verbose"   => \$verbose    # flag
+
+    "test-repo" => \$on_test_repo, # 
+
+    "repack=i"  => \my $repack,
+    #   --repack=<num commits>      # 
+
+    "path=s"    => \$repo_path, # 
+    "cwd|f"     => \$use_cwd    # 
+
+) or pod2usage(2);
+
+
+pod2usage(1) if $help;
+pod2usage(-exitval => 0, -verbose => 2) if $man;
+
+# use Getopt::Long ... parse options, and set / validate them
+
+
 if ($on_test_repo) {
     my $scratch_repo = "/tmp/git-spam-repo-";
     $repo_path = ( sort glob "$scratch_repo*" )[-1];  # the last one, whatever.
@@ -35,7 +65,7 @@ if ($on_test_repo) {
     # ... and we didn't find a one
     if (not $repo_path) { 
         # ... create a new repo
-        $repo_path = sprintf "/tmp/%s%s",$scratch_repo,$$;
+        $repo_path = sprintf "/%s%s",$scratch_repo,$$;
         $init_repo = 1;
     }
 }
@@ -95,7 +125,10 @@ git-spam - generate commits on a git repo
 
 =head1 SYNOPSIS
 
-    perl ...
+    git-spam 
+        -f  / -cwd                  # do the bogus commits in the repo in your cwd
+        --path=/path/to/workdir/    # do the commits on the supplied working copy
+        --test-repo                 # create a test repo in /tmp/ and commit there
 
 =head1 ARGUMENTS
 

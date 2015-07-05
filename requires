@@ -1,3 +1,4 @@
 Object::Tiny::RW
 Git::Repository	>1.314
 Log::Any	>1.032
+Pod::Usage	# literally anything
