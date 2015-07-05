@@ -37,8 +37,8 @@ sub mangle { # git operations happen here, lol
 
         my %modify_exts # should come from author...
             #      odds of modify, odds to insert stuff, odds to remove
-            = ( pl => [1/@files,     0.002      ,         0.01  ,            'perl'], 
-                pm => [1/@files,     0.002      ,         0.01  ,            'perl'],
+            = ( pl => [1/@files,     0.02      ,         0.02  ,            'perl'], 
+                pm => [1/@files,     0.02      ,         0.02  ,            'perl'],
              );
 
         # randomly mangle files in the repo
@@ -57,6 +57,7 @@ sub mangle { # git operations happen here, lol
 
                 $files->{$repo_file} = "patched";
 
+                # this is the same in-place edit logic that perl -pi uses.
                 open my $in, '<', $file or do {
                     $log->critf("Couldn't open %s, %s - it will be spared.", $file, $!);
                     next;
@@ -66,7 +67,7 @@ sub mangle { # git operations happen here, lol
                     $log->critf("Couldn't open %s, %s - I just destroyed its contents, oops.", $file, $!);
                     next;
                 };
-                my $options = { ENOUGH_OPENS => 1 };
+                my $options = { ENOUGH_OPENS => 3 };
                 while (defined( $_ = <$in>) ) {
                     
                     # odds to insert stuff

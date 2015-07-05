@@ -7,16 +7,20 @@ use warnings; use strict;
 
 use Log::Any qw($log);
 
+# Set up attributes:
 use Object::Tiny::RW 
     should_push             => #
 
     num_authors             => # generate commits from this many authors
+                               # really is the numner of "hacking sessions" as authors
+                               # repeat (based on their weight)
 
-    community               => # Git::Spam::Community 
+    community               => # Git::Spam::Community object, 
 
     repo                    => # Git::Repository object
 
-    _odds_for_authors        => # [ array of authors names over and over again ]
+    _odds_for_authors       => # [ array of authors names over and over again ]
+                               #  N instances of the author's name based on their weight
 ;
 
 
@@ -57,6 +61,8 @@ sub run {
     return my $exit = 0
 }
 
+# get an author object, 
+#   maybe this should be in the ::Community?
 sub select_author {
     my $self = shift;
     
