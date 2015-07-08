@@ -5,11 +5,21 @@ Create a series of spammy git commits to test your git hooks
 
 link to `bin/git-spam` from somewhere in your `$PATH` then
 
-```
-$ cd not-important-repo
-$ git-spam -f 
-# ... pages of nonsense spewed out on terminal
+```bash
+$ cd /tmp/nowhere
+$ git init # or clone
+$ ~/github/git-spam/bin/git-spam -f 
+Switching to 'Spammy McJerkerson' for [1,5] commits
+   comitted 9: Hello world
+   comitted 1: Bazza broke his leg playing cricket the other day I'm
+   comitted 1: your better half gidday BYO Ridgy-didge G'day . bloody
+# ...
 $ git log --oneline
+5eda348 I'm a seppo Clown's Bloody Ripper Bazza broke his leg 
+07cfd00 Ta My clubby cossie's No Wuckas The local Fair Dinkum!!
+c59f039 corge foobar garply bar qux garply
+# ...
+$
 ```
 
 You now have a bundle of worthless nonsense in your history.
